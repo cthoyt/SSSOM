@@ -215,6 +215,11 @@
       </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../chaining_rules/">
+        Overview of Chaining Rules
+      </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../toolkit/">
         A basic guide for the SSSOM toolkit
       </a>
@@ -222,6 +227,11 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="../5star-mappings/">
         5-Star Entity Mappings - Cheatsheet
+      </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../update/">
+        Update schema/context and release
       </a>
 </li>
 </ul>
@@ -310,6 +320,8 @@
       Mapping : confidence
       Mapping : creator_id
       Mapping : creator_label
+      Mapping : curation_rule
+      Mapping : curation_rule_text
       Mapping : license
       Mapping : mapping_cardinality
       Mapping : mapping_date
@@ -377,7 +389,7 @@
 <td><a href="../subject_category/">subject_category</a></td>
 <td><a href="http://www.w3.org/2001/XMLSchema#string">xsd:string</a></td>
 <td>0..1</td>
-<td>The conceptual category to which the subject belongs to. This can be a string denoting the category or a term from a controlled vocabulary.</td>
+<td>The conceptual category to which the subject belongs to. This can be a string denoting the category or a term from a controlled vocabulary. This slot is deliberately underspecified. Conceptual categories can range from those that are found in general upper ontologies such as BFO (e.g. process, temporal region, etc) to those that serve as upper ontologies in specific domains, such as COB or BioLink (e.g. gene, disease, chemical entity). The purpose of this optional field is documentation for human reviewers - when a category is known and documented clearly, the cost of interpreting and evaluating the mapping decreases.</td>
 <td>.</td>
 </tr>
 <tr>
@@ -419,7 +431,7 @@
 <td><a href="../object_category/">object_category</a></td>
 <td><a href="http://www.w3.org/2001/XMLSchema#string">xsd:string</a></td>
 <td>0..1</td>
-<td>The conceptual category to which the subject belongs to. This can be a string denoting the category or a term from a controlled vocabulary.</td>
+<td>The conceptual category to which the subject belongs to. This can be a string denoting the category or a term from a controlled vocabulary. This slot is deliberately underspecified. Conceptual categories can range from those that are found in general upper ontologies such as BFO (e.g. process, temporal region, etc) to those that serve as upper ontologies in specific domains, such as COB or BioLink (e.g. gene, disease, chemical entity). The purpose of this optional field is documentation for human reviewers - when a category is known and documented clearly, the cost of interpreting and evaluating the mapping decreases.</td>
 <td>.</td>
 </tr>
 <tr>
@@ -454,7 +466,7 @@
 <td><a href="../reviewer_label/">reviewer_label</a></td>
 <td><a href="http://www.w3.org/2001/XMLSchema#string">xsd:string</a></td>
 <td>0..*</td>
-<td>A string identifying the reviewer of this mapping. In the spirit of provenance, consider to use author_id instead.</td>
+<td>A string identifying the reviewer of this mapping. In the spirit of provenance, consider to use reviewer_id instead.</td>
 <td>.</td>
 </tr>
 <tr>
@@ -567,6 +579,20 @@
 <td><a href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a></td>
 <td>0..1</td>
 <td>A score between 0 and 1 to denote the confidence or probability that the match is correct, where 1 denotes total confidence.</td>
+<td>.</td>
+</tr>
+<tr>
+<td><a href="../curation_rule/">curation_rule</a></td>
+<td><a href="../EntityReference/">EntityReference</a></td>
+<td>0..*</td>
+<td>A curation rule is a (potentially) complex condition executed by an agent that led to the establishment of a mapping. Curation rules often involve complex domain-specific considerations, which are hard to capture in an automated fashion. The curation rule is captured as a resource rather than a string, which enables higher levels of transparency and sharing across mapping sets. The URI representation of the curation rule is expected to be a resolvable identifier which provides details about the nature of the curation rule.</td>
+<td>.</td>
+</tr>
+<tr>
+<td><a href="../curation_rule_text/">curation_rule_text</a></td>
+<td><a href="http://www.w3.org/2001/XMLSchema#string">xsd:string</a></td>
+<td>0..*</td>
+<td>A curation rule is a (potentially) complex condition executed by an agent that led to the establishment of a mapping. Curation rules often involve complex domain-specific considerations, which are hard to capture in an automated fashion. The curation rule should be captured as a resource (entity reference) rather than a string (see curation_rule element), which enables higher levels of transparency and sharing across mapping sets. The textual representation of curation rule is intended to be used in cases where (1) the creation of a resource is not practical from the perspective of the mapping_provider and (2) as an additional piece of metadata to augment the curation_rule element with a human readable text.</td>
 <td>.</td>
 </tr>
 <tr>
@@ -722,6 +748,8 @@ slots:
 - mapping_tool_version
 - mapping_date
 - confidence
+- curation_rule
+- curation_rule_text
 - subject_match_field
 - object_match_field
 - match_string
@@ -770,13 +798,26 @@ attributes:
   subject_category:
     name: subject_category
     description: The conceptual category to which the subject belongs to. This can
-      be a string denoting the category or a term from a controlled vocabulary.
+      be a string denoting the category or a term from a controlled vocabulary. This
+      slot is deliberately underspecified. Conceptual categories can range from those
+      that are found in general upper ontologies such as BFO (e.g. process, temporal
+      region, etc) to those that serve as upper ontologies in specific domains, such
+      as COB or BioLink (e.g. gene, disease, chemical entity). The purpose of this
+      optional field is documentation for human reviewers - when a category is known
+      and documented clearly, the cost of interpreting and evaluating the mapping
+      decreases.
     examples:
     - value: UBERON:0001062
       description: (The CURIE of the Uberon term for "anatomical entity".)
+    - value: anatomical entity
+      description: (A string, rather than ID, describing the "anatomical entity" category.
+        This is possible, but less preferred than using an ID.)
     - value: biolink:Gene
       description: (The CURIE of the biolink class for genes.)
     from_schema: https://w3id.org/sssom/schema/
+    see_also:
+    - https://github.com/mapping-commons/sssom/issues/13
+    - https://github.com/mapping-commons/sssom/issues/256
     alias: subject_category
     owner: mapping
     range: string
@@ -849,6 +890,8 @@ attributes:
     - value: Not
       description: Negates the predicate, see documentation of predicate_modifier_enum
     from_schema: https://w3id.org/sssom/schema/
+    see_also:
+    - https://github.com/mapping-commons/sssom/issues/107
     alias: predicate_modifier
     owner: mapping
     range: predicate_modifier_enum
@@ -880,13 +923,26 @@ attributes:
   object_category:
     name: object_category
     description: The conceptual category to which the subject belongs to. This can
-      be a string denoting the category or a term from a controlled vocabulary.
+      be a string denoting the category or a term from a controlled vocabulary. This
+      slot is deliberately underspecified. Conceptual categories can range from those
+      that are found in general upper ontologies such as BFO (e.g. process, temporal
+      region, etc) to those that serve as upper ontologies in specific domains, such
+      as COB or BioLink (e.g. gene, disease, chemical entity). The purpose of this
+      optional field is documentation for human reviewers - when a category is known
+      and documented clearly, the cost of interpreting and evaluating the mapping
+      decreases.
     examples:
     - value: UBERON:0001062
       description: (The CURIE of the Uberon term for "anatomical entity".)
+    - value: anatomical entity
+      description: (A string, rather than ID, describing the "anatomical entity" category.
+        This is possible, but less preferred than using an ID.)
     - value: biolink:Gene
       description: (The CURIE of the biolink class for genes.)
     from_schema: https://w3id.org/sssom/schema/
+    see_also:
+    - https://github.com/mapping-commons/sssom/issues/13
+    - https://github.com/mapping-commons/sssom/issues/256
     alias: object_category
     owner: mapping
     range: string
@@ -946,7 +1002,7 @@ attributes:
   reviewer_label:
     name: reviewer_label
     description: A string identifying the reviewer of this mapping. In the spirit
-      of provenance, consider to use author_id instead.
+      of provenance, consider to use reviewer_id instead.
     from_schema: https://w3id.org/sssom/schema/
     multivalued: true
     alias: reviewer_label
@@ -1114,6 +1170,45 @@ attributes:
     alias: confidence
     owner: mapping
     range: double
+  curation_rule:
+    name: curation_rule
+    description: A curation rule is a (potentially) complex condition executed by
+      an agent that led to the establishment of a mapping. Curation rules often involve
+      complex domain-specific considerations, which are hard to capture in an automated
+      fashion. The curation rule is captured as a resource rather than a string, which
+      enables higher levels of transparency and sharing across mapping sets. The URI
+      representation of the curation rule is expected to be a resolvable identifier
+      which provides details about the nature of the curation rule.
+    from_schema: https://w3id.org/sssom/schema/
+    see_also:
+    - https://github.com/mapping-commons/sssom/issues/166
+    - https://github.com/mapping-commons/sssom/pull/258
+    - https://github.com/mapping-commons/sssom/blob/master/examples/schema/curation_rule.sssom.tsv
+    multivalued: true
+    alias: curation_rule
+    owner: mapping
+    range: EntityReference
+  curation_rule_text:
+    name: curation_rule_text
+    description: A curation rule is a (potentially) complex condition executed by
+      an agent that led to the establishment of a mapping. Curation rules often involve
+      complex domain-specific considerations, which are hard to capture in an automated
+      fashion. The curation rule should be captured as a resource (entity reference)
+      rather than a string (see curation_rule element), which enables higher levels
+      of transparency and sharing across mapping sets. The textual representation
+      of curation rule is intended to be used in cases where (1) the creation of a
+      resource is not practical from the perspective of the mapping_provider and (2)
+      as an additional piece of metadata to augment the curation_rule element with
+      a human readable text.
+    from_schema: https://w3id.org/sssom/schema/
+    see_also:
+    - https://github.com/mapping-commons/sssom/issues/166
+    - https://github.com/mapping-commons/sssom/pull/258
+    - https://github.com/mapping-commons/sssom/blob/master/examples/schema/curation_rule_text.sssom.tsv
+    multivalued: true
+    alias: curation_rule_text
+    owner: mapping
+    range: string
   subject_match_field:
     name: subject_match_field
     description: A tuple of fields (term annotations on the subject) that was used
